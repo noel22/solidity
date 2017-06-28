@@ -1,7 +1,7 @@
 ### 0.4.17 (unreleased)
 
 Features:
- * Code Generator: Added ``.sig`` member on external function types to retrieve their signature.
+ * Code Generator: Added ``.selector`` member on external function types to retrieve their signature.
  * Optimizer: Add new optimization step to remove unused ``JUMPDEST``s.
  * Type Checker: Warn on using literals as tight packing parameters in ``keccak256``, ``sha3``, ``sha256`` and ``ripemd160``.
 

@@ -1068,7 +1068,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			solAssert(false, "Invalid member access to integer");
 		break;
 	case Type::Category::Function:
-		if (member == "sig")
+		if (member == "selector")
 		{
 			FunctionType const& type = dynamic_cast<FunctionType const&>(*_memberAccess.expression().annotation().type);
 			utils().popStackElement(type);

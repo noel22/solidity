@@ -10056,7 +10056,7 @@ BOOST_AUTO_TEST_CASE(function_types_sig)
 	char const* sourceCode = R"(
 		contract C {
 			function f() returns (bytes4) {
-				return this.f.sig;
+				return this.f.selector;
 			}
 		}
 	)";
