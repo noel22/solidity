@@ -65,7 +65,8 @@ void ViewPureChecker::endVisit(FunctionDefinition const& _funDef)
 		m_currentBestMutability < _funDef.stateMutability() &&
 		_funDef.stateMutability() != StateMutability::Payable &&
 		_funDef.isImplemented() &&
-		!_funDef.isConstructor()
+		!_funDef.isConstructor() &&
+		!_funDef.annotation().superFunction
 	)
 		m_errorReporter.warning(
 			_funDef.location(),
@@ -128,29 +129,34 @@ void ViewPureChecker::endVisit(InlineAssembly const& _inlineAssembly)
 	reportMutability(StateMutability::NonPayable, _inlineAssembly);
 }
 
-void ViewPureChecker::reportMutability(StateMutability _mutability, const ASTNode& _node)
+void ViewPureChecker::reportMutability(StateMutability _mutability, ASTNode const& _node)
 {
 	if (m_currentFunction && m_currentFunction->stateMutability() < _mutability)
 	{
 		m_errors = true;
+		string text;
 		if (_mutability == StateMutability::View)
-			m_errorReporter.typeError(
-				_node.location(),
-				"Function declared as pure, but this expression reads from the environment and thus "
-				"requires \"view\"."
-			);
+			text =
+				"Function declared as pure, but this expression reads from the "
+				"environment and thus requires \"view\".";
 		else if (_mutability == StateMutability::NonPayable)
-			m_errorReporter.typeError(
-				_node.location(),
+			text =
 				"Function declared as " +
 				stateMutabilityToString(m_currentFunction->stateMutability()) +
 				", but this expression modifies the state and thus "
-				"requires non-payable (the default) or payable."
-			);
+				"requires non-payable (the default) or payable.";
+		else
+			solAssert(false, "");
+
+		if (m_currentFunction->stateMutability() == StateMutability::View)
+			// Change this to error with 0.5.0
+			m_errorReporter.warning(_node.location(), text);
+		else if (m_currentFunction->stateMutability() == StateMutability::Pure)
+			m_errorReporter.typeError(_node.location(), text);
 		else
 			solAssert(false, "");
 	}
-	if (_mutability >= m_currentBestMutability)
+	if (_mutability > m_currentBestMutability)
 		m_currentBestMutability = _mutability;
 }
 
